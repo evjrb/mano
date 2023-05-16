@@ -2,14 +2,13 @@ package server
 
 import (
 	"context"
-	"errors"
 	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/mano/client/argyle"
 	"github.com/mano/client/storage"
-	"github.com/mano/common"
 	"github.com/rs/zerolog/log"
 )
 
@@ -36,8 +35,14 @@ func (s *ManoServer) Start(ctx context.Context, port int) {
 	p := strconv.Itoa(port)
 
 	log.Ctx(ctx).Info().Msgf("listening to mano money requests on %s", p)
-	err := http.ListenAndServe(":"+p, s.Router)
+
+	server := &http.Server{
+		Addr:              ":" + p,
+		ReadHeaderTimeout: 3 * time.Second,
+	}
+
+	err := server.ListenAndServe()
 	if err != nil {
-		log.Ctx(ctx).Error().Err(errors.New(common.ErrStartServer)).Msg(err.Error())
+		log.Ctx(ctx).Error().Err(err).Msg("starting server")
 	}
 }
