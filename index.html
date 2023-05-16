@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Sign Up Page</title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</head>
+<body>
+	<h1>Sign Up</h1>
+	<form>
+		<label for="first-name">First Name:</label>
+		<input type="text" id="first-name" name="first-name"><br>
+
+    <label for="last-name">Last Name:</label>
+		<input type="text" id="last-name" name="last-name"><br>
+
+    <button id="signup-btn">Sign Up</button>
+	</form>
+
+	<script>
+		$(document).ready(function() {
+			$("#signup-btn").click(function(e) {
+				e.preventDefault();
+				var first_name = $("#first-name").val();
+				var last_name = $("#last-name").val();
+        var dataToSend = {
+          first_name: first_name,
+          last_name: last_name
+        };
+				$.ajax({
+					method: "POST",
+					url: "https://d819-2601-646-201-610-d515-b4b8-62fe-b18b.ngrok-free.app/onboard-user",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          data: JSON.stringify(dataToSend),
+					success: function(response) {
+            console.log(response["user_token"])
+            var script = document.createElement("script");
+            script.src = "https://plugin.argyle.com/argyle.web.v5.js";
+            // Append the script element to the body of the pag
+            document.body.appendChild(script);
+            const linkInstance = Argyle.create({
+                linkKey: '018694fc-3408-7e8e-aeff-36dac34c7664',
+                userToken: 'USER_TOKEN',
+                sandbox: true,
+                onAccountConnected: payload => console.log('onAccountConnected', payload),
+                onAccountError: payload => console.log('onAccountError', payload),
+                onDDSSuccess: payload => console.log('onDDSSuccess', payload),
+                onDDSError: payload => console.log('onDDSError', payload),
+                onTokenExpired: updateToken => {
+                    console.log('onTokenExpired')
+                }
+            })
+            linkInstance.open()
+
+					},
+					error: function(xhr, status, error) {
+						alert("Error: " + error);
+					}
+				});
+			});
+		});
+	</script>
+</body>
+</html>
